@@ -1,0 +1,23 @@
+.datePicker .calendar{
+	background-color: #ccc;
+	display: none;
+}
+
+.datePicker .showCalendar{
+	display: block;
+}
+
+.datePicker .calendar .header{
+	display: inline-block;
+	width: 10%;
+}
+.datePicker .calendar .month{
+	width: 80%;
+	font-weight: 700;
+	text-align: center;
+}
+
+.datePicker .calendar th,td{
+	text-align: center;
+}
+
