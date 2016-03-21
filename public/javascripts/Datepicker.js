@@ -13,6 +13,7 @@ function Datepicker(x) {
 Datepicker.prototype.render = function() {
 	var self = this;
 	var parent = $("#"+self.parent_id);
+    var width = $("#"+self.parent_id)[0].clientWidth;
 	var $div1 = $("<div class='datePicker'></div>");
 	parent.append($div1);
     var $div2 = $("<div ></div>")
@@ -20,8 +21,9 @@ Datepicker.prototype.render = function() {
     $div1.append($div2);
 
     // Create Calendar
-    var $div3 = $("<div class='calendar'></div>");
-    var $div4 = $("<div class='header month'>"+self._monthList[self._month]+" "+self._year+"</div>");
+    var $div3 = $("<div class='calendar' width="+width+" ></div>");
+    var $div4 = $("<div class='calendar-header'></div>");
+    var $div5 = $("<div class='header month'>"+self._monthList[self._month]+" "+self._year+"</div>");
     var $leftbtn = $("<button type='button' class='btn btn-default header'><span class='glyphicon glyphicon-chevron-left' aria-hidden='true'></span></button>")
     				.on("click", function(){
     					self._month--;
@@ -34,18 +36,19 @@ Datepicker.prototype.render = function() {
     					self._month++;
     					if(self._month == 12) self._month = 0;
     					updateCalendarHeader();
-    					constructCalendarTable($calBody);
+    					constructCalendarTable($calBody,width);
     				});
     var $calBody = $("<div id='calendar-body'></div>");
-    $div3.append($leftbtn);
+    $div4.append($leftbtn);
+    $div4.append($div5);
+   	$div4.append($rightbtn);
     $div3.append($div4);
-   	$div3.append($rightbtn);
 	$div3.append($calBody);
-	constructCalendarTable($calBody);
+	constructCalendarTable($calBody,width);
 
    	$div1.append($div3);
 
-    var $input = $("<input></input>")
+    var $input = $("<input id='datePicker-input'></input>")
     		.attr("type","text")
     		.addClass("form-control")
     		.attr("placeholder", "mm/dd/yyyy");
@@ -69,13 +72,13 @@ Datepicker.prototype.render = function() {
    		$(".calendar .month").text(self._monthList[self._month] +" "+ self._year);
    	}
 
-   	function constructCalendarTable(parent){
+   	function constructCalendarTable(parent,width){
    		$("#calendar-body").children().remove();
    		//Header row
 	   	var $calTable = $("<table width='100%'></table>");
 	   	var $tr = $("<tr></tr>");
 	   	for(var i = 0; i < self._dayList.length; i++){
-	   		$tr.append($("<th>"+self._dayList[i]+"</th>"));
+	   		$tr.append($("<th width="+(width/7)+">"+self._dayList[i]+"</th>"));
 	   	}
 	   	$calTable.append($tr);
 
@@ -88,9 +91,19 @@ Datepicker.prototype.render = function() {
 			if(day > monthLength) break;
 			var $tr = $("<tr></tr>")
 			for(var j = 0; j < 7; j++){
-				var $td = $("<td></td>");
+				var $td = $("<td width="+(width/7)+"></td>");
 				if(day <= monthLength && ( j>= firstday.getDay() || i != 0)){
-					$td.text(day);
+                    if(day == self._currDate.getDate() && self._month == self._currDate.getMonth() && self._year == self._currDate.getFullYear()){
+                        $td.css("background","#f6f6c2").css("cursor", "pointer")
+                            .click(function(){setDateToInput(self._year, self._month,$(this).text())}).text(day);
+                    }
+                    else{
+    					$td.hover(function(){
+                            $(this).css("background","#ccc").css("cursor", "pointer").css("border-radius","2px");
+                        }, function(){
+                            $(this).css("background","#FFF").css("cursor", "auto");
+                        }).click(function(){setDateToInput(self._year, self._month,$(this).text())}).text(day);
+                    }             
 					day++;
 				}
 				$tr.append($td);
@@ -99,4 +112,10 @@ Datepicker.prototype.render = function() {
 		}
 		parent.append($calTable);
    	}
+
+    function setDateToInput(year, month, date){
+        var formatDate = parseInt(date).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+        var formatMonth = (month+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})
+        $("#datePicker-input").val(formatMonth+"/"+formatDate+"/"+year);
+    }
 };

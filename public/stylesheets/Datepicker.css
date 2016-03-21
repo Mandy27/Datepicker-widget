@@ -1,6 +1,12 @@
 .datePicker .calendar{
-	background-color: #ccc;
 	display: none;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+}
+.datePicker .calendar .btn{
+	border: none;
+	background: none;
+	width:10%;
 }
 
 .datePicker .showCalendar{
@@ -9,15 +15,16 @@
 
 .datePicker .calendar .header{
 	display: inline-block;
-	width: 10%;
 }
 .datePicker .calendar .month{
-	width: 80%;
 	font-weight: 700;
 	text-align: center;
+	width:80%;
 }
 
 .datePicker .calendar th,td{
 	text-align: center;
+	height: 2.5em;
 }
+
 
