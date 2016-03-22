@@ -11,6 +11,6 @@
 + Run `nodemon` to start the server
 
 #### User Interface:
-Load the user interface at: [http://localhost:8000](http://localhost:3000)
+Load the user interface at: [http://localhost:3000](http://localhost:3000)
 
 #### Built using Javascript, HTML, CSS, JQuery, Bootstrap, NodeJs.
