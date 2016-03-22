@@ -2,8 +2,8 @@ function Datepicker(x) {
     var self = this;
 
     this.parent_id = x.parent_id;
-    this.minDate = new Date(2016, 2,2);
-    this.maxDate = new Date(2017, 2,2);
+    this.minDate = new Date(x.minDate.getFullYear(), x.minDate.getMonth(),1);
+    this.maxDate = new Date(x.maxDate.getFullYear(), x.maxDate.getMonth(),1);
 
     this._monthList = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
     this._dayList = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -27,8 +27,7 @@ Datepicker.prototype.render = function() {
     var $div5 = $("<div class='header month'>"+self._monthList[self._date.getMonth()]+" "+self._date.getFullYear()+"</div>");
     var $leftbtn = $("<button type='button' class='btn btn-default header'><span class='glyphicon glyphicon-chevron-left' aria-hidden='true'></span></button>")
     				.on("click", function(){
-                        var temp = new Date(self._date.getFullYear(), self._date.getMonth()-1, 1);
-                        if(temp < self.minDate){
+                        if(new Date(self._date.getFullYear(), self._date.getMonth()-1, 1) < self.minDate){
                             self._date = new Date(self.maxDate.getFullYear(), self.maxDate.getMonth(),1);
                         }else{
                             self._date.setMonth(self._date.getMonth()-1);
@@ -69,12 +68,19 @@ Datepicker.prototype.render = function() {
     var $btn = $("<button></button>")
     		.addClass("btn btn-default")
     		.attr("type","button")
-    		.on("click",function(){$("#"+self.parent_id+" .datePicker .calendar").toggleClass("showCalendar");});
+    		.on("click",function(){$("#"+self.parent_id+" .datePicker .calendar").toggleClass("showCalendar"); });
     $span1.append($btn);
 
     var $span2 = $("<span aria-hidden='true'></span>")
     		.addClass("glyphicon glyphicon-calendar");
    	$btn.append($span2);
+
+    $(document).keyup(function(e) {
+        if(e.keyCode == 27 && $("#"+self.parent_id+" .calendar").hasClass("showCalendar") ){
+            $("#"+self.parent_id+" .datePicker .calendar").toggleClass("showCalendar");
+            $("#"+self.parent_id+" .datePicker #datePicker-input").focus();
+        }
+    });
 
    	function updateCalendarHeader(){
    		$("#"+self.parent_id+" .calendar .month").text(self._monthList[self._date.getMonth()] +" "+ self._date.getFullYear());
