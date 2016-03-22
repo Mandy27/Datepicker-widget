@@ -3,6 +3,11 @@
 	border: 1px solid #ccc;
 	border-radius: 5px;
 }
+
+.datePicker .calendar-header{
+	background-color: #e17669;
+}
+
 .datePicker .calendar .btn{
 	border: none;
 	background: none;
@@ -22,9 +27,13 @@
 	width:80%;
 }
 
+.datePicker .calendar th{
+	background-color: #f7f7f7;
+	border-bottom: 1px solid #ccc;
+}
+
 .datePicker .calendar th,td{
 	text-align: center;
 	height: 2.5em;
 }
-
 

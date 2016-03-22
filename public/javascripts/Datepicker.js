@@ -2,12 +2,13 @@ function Datepicker(x) {
     var self = this;
 
     this.parent_id = x.parent_id;
+    this.minDate = new Date(2016, 2,2);
+    this.maxDate = new Date(2017, 2,2);
 
     this._monthList = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
     this._dayList = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    this._currDate = new Date();
-    this._year = this._currDate.getFullYear();		// Default: current
-    this._month = this._currDate.getMonth();		// Default: current
+    this._date = new Date(this.minDate);
+    this._date.setDate(1);
 }
 
 Datepicker.prototype.render = function() {
@@ -23,18 +24,25 @@ Datepicker.prototype.render = function() {
     // Create Calendar
     var $div3 = $("<div class='calendar' width="+width+" ></div>");
     var $div4 = $("<div class='calendar-header'></div>");
-    var $div5 = $("<div class='header month'>"+self._monthList[self._month]+" "+self._year+"</div>");
+    var $div5 = $("<div class='header month'>"+self._monthList[self._date.getMonth()]+" "+self._date.getFullYear()+"</div>");
     var $leftbtn = $("<button type='button' class='btn btn-default header'><span class='glyphicon glyphicon-chevron-left' aria-hidden='true'></span></button>")
     				.on("click", function(){
-    					self._month--;
-    					if(self._month < 0) self._month = 11;
+                        var temp = new Date(self._date.getFullYear(), self._date.getMonth()-1, 1);
+                        if(temp < self.minDate){
+                            self._date = new Date(self.maxDate.getFullYear(), self.maxDate.getMonth(),1);
+                        }else{
+                            self._date.setMonth(self._date.getMonth()-1);
+                        }
     					updateCalendarHeader();
-    					constructCalendarTable($calBody);
+    					constructCalendarTable($calBody,width);
     				});
     var $rightbtn = $("<button type='button' class='btn btn-default header'><span class='glyphicon glyphicon-chevron-right' aria-hidden='true'></span></button>")
     				.on("click", function(){
-    					self._month++;
-    					if(self._month == 12) self._month = 0;
+                        if(new Date(self._date.getFullYear(), self._date.getMonth()+1, 1) > self.maxDate){
+                            self._date = new Date(self.minDate.getFullYear(), self.minDate.getMonth(),1);
+                        }else{
+                            self._date.setMonth(self._date.getMonth()+1);
+                        }
     					updateCalendarHeader();
     					constructCalendarTable($calBody,width);
     				});
@@ -61,19 +69,21 @@ Datepicker.prototype.render = function() {
     var $btn = $("<button></button>")
     		.addClass("btn btn-default")
     		.attr("type","button")
-    		.on("click",function(){$(".datePicker .calendar").toggleClass("showCalendar");});
+    		.on("click",function(){$("#"+self.parent_id+" .datePicker .calendar").toggleClass("showCalendar");});
     $span1.append($btn);
 
-    var $span2 = $("<span></span>")
-    		.addClass("caret");
+    var $span2 = $("<span aria-hidden='true'></span>")
+    		.addClass("glyphicon glyphicon-calendar");
    	$btn.append($span2);
 
    	function updateCalendarHeader(){
-   		$(".calendar .month").text(self._monthList[self._month] +" "+ self._year);
+   		$("#"+self.parent_id+" .calendar .month").text(self._monthList[self._date.getMonth()] +" "+ self._date.getFullYear());
    	}
 
    	function constructCalendarTable(parent,width){
-   		$("#calendar-body").children().remove();
+   		$("#"+self.parent_id+" #calendar-body").children().remove();
+        var year = self._date.getFullYear();
+        var month = self._date.getMonth();
    		//Header row
 	   	var $calTable = $("<table width='100%'></table>");
 	   	var $tr = $("<tr></tr>");
@@ -83,26 +93,26 @@ Datepicker.prototype.render = function() {
 	   	$calTable.append($tr);
 
 	   	// Body table
-	   	var firstday = new Date(self._year, self._month, 1);
-	   	var endday = new Date(self._year, self._month + 1, 1);
-		var monthLength = Math.ceil((endday - firstday) / (1000 * 60 * 60 * 24));
+	   	var endday = new Date(year, month+ 1, 1);
+		var monthLength = Math.ceil((endday - self._date) / (1000 * 60 * 60 * 24));
 		var day = 1;
 		for(var i = 0; i < 6; i++){
 			if(day > monthLength) break;
 			var $tr = $("<tr></tr>")
 			for(var j = 0; j < 7; j++){
 				var $td = $("<td width="+(width/7)+"></td>");
-				if(day <= monthLength && ( j>= firstday.getDay() || i != 0)){
-                    if(day == self._currDate.getDate() && self._month == self._currDate.getMonth() && self._year == self._currDate.getFullYear()){
-                        $td.css("background","#f6f6c2").css("cursor", "pointer")
-                            .click(function(){setDateToInput(self._year, self._month,$(this).text())}).text(day);
+				if(day <= monthLength && ( j>= self._date.getDay() || i != 0)){
+                    var today = new Date();
+                    if(day == today.getDate() && month == today.getMonth() && year == today.getFullYear()){
+                        $td.css("background","#eaeaea").css("cursor", "pointer")
+                            .click(function(){setDateToInput(year, month,$(this).text())}).text(day);
                     }
                     else{
     					$td.hover(function(){
-                            $(this).css("background","#ccc").css("cursor", "pointer").css("border-radius","2px");
+                            $(this).css("background","#e17669").css("cursor", "pointer").css("border-radius","2px");
                         }, function(){
                             $(this).css("background","#FFF").css("cursor", "auto");
-                        }).click(function(){setDateToInput(self._year, self._month,$(this).text())}).text(day);
+                        }).css("border","1px solid #ccc").click(function(){setDateToInput(year, month,$(this).text())}).text(day);
                     }             
 					day++;
 				}
@@ -116,6 +126,7 @@ Datepicker.prototype.render = function() {
     function setDateToInput(year, month, date){
         var formatDate = parseInt(date).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
         var formatMonth = (month+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})
-        $("#datePicker-input").val(formatMonth+"/"+formatDate+"/"+year);
+        $("#"+self.parent_id+" #datePicker-input").val(formatMonth+"/"+formatDate+"/"+year);
+        $("#"+self.parent_id+" .datePicker .calendar").toggleClass("showCalendar");
     }
 };
